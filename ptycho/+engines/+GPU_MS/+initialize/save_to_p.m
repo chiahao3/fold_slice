@@ -168,8 +168,10 @@ function p_out = save_to_p(self, param, p, fourier_error)
     p_out.error_metric.iteration = find(ind_ok);
     if strcmp(param.likelihood,'poisson' )
         p_out.error_metric.err_metric = 'poisson';
-    else
+    elseif strcmp(param.likelihood,'L1' )
         p_out.error_metric.err_metric = 'L1';
+    elseif strcmp(param.likelihood,'ptyrad' )
+        p_out.error_metric.err_metric = 'ptyrad';
     end
     p_out.error_metric.method = ['GPU-',param.method, ' metric:' , param.likelihood ];
 

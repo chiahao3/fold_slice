@@ -82,6 +82,7 @@ function Err = get_fourier_error(modF, aPsi, Noise,Mask, likelihood)
     % USE Gfun IN ORDER TO MAKE IT FASTER ON GPU 
     if isempty(Mask) && isempty(Noise)
         switch likelihood
+            case 'ptyrad', Err = Gfun(@get_ptyrad_err,modF, aPsi);
             case 'l1', Err = Gfun(@get_err,modF, aPsi);
             case 'poisson', Err = Gfun(@get_loglik,modF, aPsi);
         end
@@ -96,6 +97,7 @@ function Err = get_fourier_error(modF, aPsi, Noise,Mask, likelihood)
         Err = Gfun(@get_err_noise_mask, modF, aPsi, Mask, Noise);
     end   
     switch likelihood
+        case 'ptyrad', Err = sqrt(squeeze(mean2(Err)))' / mean(modF, 'all'); % Calculate for all DP in a batch but the value for each DP is passed individually. The data mean is averaged within the batch.
         case 'l1',  Err = sqrt(squeeze(mean2(Err)))';
         case 'poisson',  Err = squeeze(mean2(Err))';
         otherwise, error('Unsupported likelihood')
@@ -111,6 +113,9 @@ function L = get_loglik_masked(modF, aPsi,Mask)
     modF2 = modF.^2;
     aPsi2 = aPsi.^2;
     L = -(1-Mask) .* (modF2 .* log(aPsi2+1e-6) - aPsi2) ;
+end
+function E = get_ptyrad_err(modF, aPsi)
+     E = (modF-aPsi).^2;
 end
 function E = get_err(modF, aPsi)
      E = (modF-aPsi).^2 / (0.5)^2;   % 0.5 is correction for the Poisson noise (if we expect single photon precision)

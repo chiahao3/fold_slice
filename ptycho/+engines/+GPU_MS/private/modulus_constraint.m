@@ -93,6 +93,17 @@ function [chi,R] = modulus_constraint(modF,aPsi ,Psi, mask, noise, par, R_offset
         
     %% write the most common cases as merged kernels 
     if nargout == 1
+        if isempty(mask) && isempty(noise) && relax_noise == 0 && strcmpi(likelihood, 'ptyrad') && Nmodes == 1  % common modulus constraint 
+            chi{1} = Gfun(@modulus_non_relaxed,Psi{1},modF, aPsi, R_offset); 
+            return
+        end
+        if ~isempty(mask) && isempty(noise) && strcmpi(likelihood, 'ptyrad') && Nmodes == 1  % common modulus constraint 
+            chi{1} = Gfun(@modulus_weight_relaxed,Psi{1},modF, aPsi,mask, R_offset); 
+            return
+        end
+    end
+    
+    if nargout == 1
         if isempty(mask) && isempty(noise) && relax_noise == 0 && strcmpi(likelihood, 'l1') && Nmodes == 1  % common modulus constraint 
             chi{1} = Gfun(@modulus_non_relaxed,Psi{1},modF, aPsi, R_offset); 
             return
@@ -105,16 +116,19 @@ function [chi,R] = modulus_constraint(modF,aPsi ,Psi, mask, noise, par, R_offset
     
     if isempty(mask) && isempty(noise) && relax_noise == 0  % common modulus constraint 
         switch likelihood
+            case 'ptyrad', R = Gfun(@non_relaxed, modF, aPsi, R_offset); 
             case 'l1', R = Gfun(@non_relaxed, modF, aPsi, R_offset); 
             case 'poisson', R = Gfun(@poisson_noise_relaxed,modF, aPsi, R_offset);
         end
     elseif isempty(mask) && isempty(noise) && relax_noise > 0  % common modulus constraint 
         switch likelihood
+            case 'ptyrad', R = Gfun(@weight_relaxed, modF, aPsi, relax_noise, R_offset ); 
             case 'l1', R = Gfun(@weight_relaxed, modF, aPsi, relax_noise, R_offset ); 
             case 'poisson', R = Gfun(@poisson_noise_weight_relaxed,modF, aPsi,relax_noise, R_offset); 
         end
     elseif  ~isempty(mask) && isempty(noise)
         switch likelihood
+            case 'ptyrad', R = Gfun(@weight_relaxed, modF, aPsi, max(mask, relax_noise), R_offset ); 
             case 'l1', R = Gfun(@weight_relaxed, modF, aPsi, max(mask, relax_noise), R_offset ); 
             case 'poisson', R = Gfun(@poisson_noise_weight_relaxed,modF, aPsi, max(mask, relax_noise), R_offset); 
         end

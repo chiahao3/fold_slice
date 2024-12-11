@@ -79,7 +79,7 @@ if ~is_method(par, {'PIE', 'ML'}) && strcmpi(par.likelihood, 'poisson')
     par.likelihood = 'L1';
 end
 
-if ~ismember(lower( par.likelihood), {'l1','poisson'})
+if ~ismember(lower( par.likelihood), {'ptyrad','l1','poisson'})
     error('Unsupported error estimation')
 end
    

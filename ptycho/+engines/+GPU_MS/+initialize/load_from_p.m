@@ -64,7 +64,9 @@ function [self, param, p] = load_from_p(param, p)
     try;param.probe_inertia = p.probe_regularization; end
 
     if check_option(p,'opt_errmetric','poisson')
-        param.likelihood = 'poisson'; 
+        param.likelihood = 'poisson';
+    elseif check_option(p,'opt_errmetric','ptyrad')
+        param.likelihood = 'ptyrad';
     else
         param.likelihood = 'L1'; 
     end
@@ -405,6 +407,8 @@ function [self, param, p] = load_from_p(param, p)
         self.mask = ifftshift_2D(self.mask);
     end
     
+    % self.mean_diffraction_amp = mean(sqrt(self.diffraction), 'all');
+
     self.filename = [p.detector.data_prefix, p.run_name]; 
     
     % other basic parameters 

@@ -83,6 +83,7 @@ if is_method(par, {'PIE', 'ML'})
         cache.beta_probe  = single(par.beta_probe);
     end
     switch lower(par.likelihood)
+        case 'ptyrad', cache.beta_xi = 1; % optimal step for gauss
         case 'l1', cache.beta_xi = 1; % optimal step for gauss
         case 'poisson', cache.beta_xi = 0.5*ones(1,1,self.Npos,'single'); % for poisson it will be further refined 
     end
@@ -294,6 +295,7 @@ for iter =  (1-par.initial_probe_rescaling):par.number_iterations
     
     if verbose() > 0  && any(~isnan(fourier_error(iter,:)))       
         switch lower(par.likelihood)
+            case  'ptyrad', verbose(1,'=====  ptyrad Fourier error = %3.4g ', nanmean(fourier_error(iter,:)) ); 
             case  'l1', verbose(1,'=====  Fourier error = %3.4g ', nanmedian(fourier_error(iter,:)) ); 
             case 'poisson'
                 err = fourier_error(iter,:) - fourier_error(1,:);

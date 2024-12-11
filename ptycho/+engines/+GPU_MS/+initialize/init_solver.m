@@ -48,6 +48,14 @@ function [self, cache] = init_solver(self,par)
         Noise = max(0.5, Noise); 
     end
     
+    if par.relax_noise &&  ~isempty(self.noise) &&  strcmp(par.likelihood, 'ptyrad')
+        Noise = self.noise;
+        Noise = (sqrt(posit(self.diffraction + Noise)) - sqrt(posit(self.diffraction - Noise)))/2;
+        Noise(self.diffraction == 0) = 1;
+        disp('Using measured noise')
+        Noise = max(0.5, Noise); 
+    end
+
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     %%%%%%% PREPARE MASK AND DATA %%%%%%%%%%%%%%%
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
